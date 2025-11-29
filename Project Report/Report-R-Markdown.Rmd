@@ -1,6 +1,8 @@
 ---
 title: "Report R"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 date: "2025-11-28"
 ---
 
@@ -191,7 +193,7 @@ bp <- ggplot(datamar, aes(x = ocean, y = mp_measurement)) +
 print(bp)
 ```
 
-#Worldmap Static Plot - Visual distribuiton of Microplastics around the World
+#Worldmap Static Plot - Visual distribution of Microplastics around the World
 ```{r}
 x <- map_data("world")
 ggplot()+ borders("world", fill = "grey70", colour = "black")+
