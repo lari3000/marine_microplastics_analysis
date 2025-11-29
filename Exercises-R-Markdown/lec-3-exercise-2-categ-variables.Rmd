@@ -1,0 +1,34 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(conflicted)  
+conflict_prefer("filter", "dplyr")
+library(tidyverse)
+```
+
+#Generate a bar plot showing the number of countries included in the dataset from each Region.
+```{r}
+econData <- read_csv("Lec3Data-Ex2.csv")
+ggplot(econData, aes(x = Region, fill = Region)) +
+  geom_bar() +
+  ggtitle("Countries by region") +
+  labs(x= "Region", y = "Number of countries") +
+  theme (plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 15, hjust = 1), legend.position = "none")
+    
+econData <- econData %>%
+  mutate(reg = reorder(Region, Region, function(x) -length(x)))
+barplot <- ggplot(econData, aes(x = reg, fill = reg)) +
+  geom_bar() +
+  ggtitle("Countries by region") +
+  labs(x= "Region", y = "Number of countries") +
+  theme (plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 15, hjust = 1), legend.position = "none", axis.title.x = element_blank())
+
+barplot
+```
+

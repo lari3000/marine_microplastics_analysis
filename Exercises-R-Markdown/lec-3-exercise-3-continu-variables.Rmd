@@ -1,0 +1,35 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(conflicted)  
+conflict_prefer("filter", "dplyr")
+library(tidyverse)
+```
+
+#1. Create boxplots of SEDA scores, SEDA.Current.level separately for each Region.
+
+```{r}
+econData <- read_csv("Lec3Data-Ex2.csv")
+
+plt <- ggplot(econData, aes(x = Region, y = SEDA.Current.level)) + 
+  ggtitle("Countries by region") +
+  labs(y = "SEDA Current Level") +
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 15, hjust = 1))
+plt + geom_boxplot(fill = "lightyellow")
+```
+
+#2. Overlay points on top of the box plots
+```{r}
+plt + geom_boxplot(fill = "lightyellow") + geom_point(color = "orangered")
+```
+
+#3. The points you added are on top of each other, in order to  distinguish them jitter each point by a little bit in the horizontal  direction.
+```{r}
+plt + geom_boxplot(fill = "lightyellow") + geom_jitter(color = "orangered", width = 0.2, alpha = 0.7)
+```

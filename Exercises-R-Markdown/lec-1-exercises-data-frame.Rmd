@@ -1,0 +1,34 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1 Create the following data frame and name it “exams”.
+
+```{r}
+exams <- data.frame(
+  student = c("Alice","Sarah","Harry","Ron","Kate"),
+  score = c(86,95,87,99,97),
+  letter = c("A","B","B","B","A"),
+  late = c("FALSE","TRUE","FALSE","FALSE","TRUE"),
+  stringsAsFactors = FALSE )
+
+print(exams)
+```
+
+#2 Compute the mean score for this exam and print it.
+
+```{r}
+print(paste("The mean score for the exam is", mean(exams$score)))
+```
+
+#3 Find the student with the highest score and print the corresponding row of “exams”. Hint: use the function which.max().
+
+```{r}
+exams[which.max(exams$score), ]
+```

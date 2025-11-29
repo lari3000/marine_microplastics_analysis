@@ -1,0 +1,160 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1 Write a R program to take input from the user (name and age) and display the values. Also print the version of R installation
+```{r}
+name <- readline(prompt = "Enter your name: ")
+```
+
+#Take input for age and convert to numeric
+```{r}
+age_conv <- readline(prompt = "Enter your age: ")
+age <- as.numeric(age_conv)
+```
+
+#Display the collected name and age
+```{r}
+print(paste("Hi,", name, "! You are", age, "years old."))
+```
+
+#Display the version of R installation
+```{r}
+getRversion()
+```
+
+#2 Write a R program to create a sequence of numbers from 20 to 50 and find the mean of numbers from 20 to 60 and sum of numbers from 51 to 91.
+```{r}
+print(seq(20,50))
+print(mean(20:60))
+print(sum(51:91))
+```
+
+#3 Write a R program to create a vector which contains 10 random integer values between -50 and +50.
+```{r}
+v <- sample(x = -50:50, size = 10)
+print(v)
+```
+
+#4 Write a R program to find the maximum and the minimum value of a given vector.
+```{r}
+v = c(55:90)
+print(v)
+print(paste("Maximum value of vector v:", max(v)))
+print(paste("Minimum value of vector v:", min(v)))
+```
+
+#5 Write a R program to create three vectors a,b,c with 3 integers. Combine the three vectors to become a 3×3 matrix where each column represents a vector. Print the content of the matrix.  
+```{r}
+x = c(36,67,82)
+y = c(44,74,51)
+z = c(94,34,68)
+  
+m <- cbind(x, y, z)
+  
+print("Content of matrix m:")
+print(m)
+```
+
+#6 Write a R program to create a 5 x 4 matrix , 3 x 3 matrix with labels and fill the matrix by rows and 2 × 2 matrix with labels and fill the matrix by columns.
+```{r}
+m1 = matrix(31:50, nrow=5, ncol=4)
+print("5 x 4 matrix:")
+
+value1 = c(23,14,25,75,45,73,97,67,63)
+row_n = c("1","2","3")
+col_n = c("A","B","C")
+m2 = matrix(value1, nrow=3, ncol=3, byrow=TRUE, dimnames=list(row_n, col_n))
+print("3 x 3 matrix:")
+print(m2)
+  
+value2 = c(5:8)
+row_n2 = c("1","2")
+col_n2 = c("Y","Z")
+m3 = matrix(value2, nrow=2, ncol=2, byrow=FALSE, dimnames=list(row_n2, col_n2))
+print("2 x 2 matrix:")
+print(m3)
+```
+
+#7 Write a R program to create an array, passing in a vector of values and a vector of dimensions. Also provide names for each dimension.
+```{r}
+a = array(
+  34:64,
+  dim = c(4, 4, 2),
+  dimnames = list(
+  c("1","2","3","4"),
+  c("A","B","C","D"),
+  c("part1","part2")
+                  )
+          )
+print(a)
+```
+
+#8 Write a R program to create a list of elements using vectors, matrices and a functions. Print the content of the list.
+```{r}
+li = list(
+  c(3, 5, 8, 7, 9, 12),
+  letters, #predefined vector
+  matrix(c(4, 6, 8, 10), nrow = 2),
+  tan
+  )
+  
+print("Content of the list:")
+print(li)
+```
+
+#9 Write a R program to create a simple bar plot of five subjects marks.
+```{r}
+marks = c(9, 15, 4, 17)
+  
+# Create a bar plot with the specified marks
+  barplot(marks,
+          
+# Title of the bar plot
+          main = "Comparing marks of 5 subjects",
+          
+# Label the x-axis as "Marks"
+          xlab = "Marks",
+          
+# Label the y-axis as "Subject"
+          ylab = "Subject",
+          
+# Set the names of the bars
+          names.arg = c("Oceanog.", "Program.", "Legislat.", "Genetics"),
+          
+# Set the color of the bars to dark red
+          col = "darkblue",
+          
+# Set the bars to vertical
+          horiz = FALSE)
+```
+  
+#10 Write a R program to create a Dataframes which contain details of 5 employees and display the details.
+```{r}
+employees = data.frame(
+  name = c("Alice Mars", "Sarah Pyten", "Harry Worls", "Ron Height", "Kate Sheli"),
+  gender = c("F", "F", "M", "M", "F"),
+  age = c(24,34,42,58,47),
+  role = c("Supervisor","Manager","Salesman","CEO","Assistant"),
+  phone = c("524564","987489","763876","527565","958365")
+  )
+
+print ("Details of the employees:")
+print (employees)
+```
+
+#11 Write a R program to compute sum, mean and product of a given vector 
+```{r}
+v = c(24,64,74,80)
+
+print (paste ("The sum result is:", sum(v)))
+print (paste ("The mean result is:", mean(v)))
+print (paste ("The product result is:", prod(v)))
+```
+

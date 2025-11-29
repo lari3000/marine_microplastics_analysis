@@ -1,0 +1,76 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(conflicted)  
+conflict_prefer("filter", "dplyr")
+library(tidyverse)
+```
+
+#You will try to recreate a plot from an Economist article showing the relationship between well-being and financial inclusion. You can find the accompanying article at this link (https://www.economist.com/graphic-detail/2016/07/20/measuring-well-being). The data for the exercises EconomistData.csv can be downloaded from the class github repository.
+
+#1. Create a scatter plot similar to the one in the article, where the x  axis corresponds to percent of people over the age of 15 with a bank account (the  Percent.of.15plus.with.bank.account column) and  the y axis corresponds to the current SEDA score  SEDA.Current.level.
+```{r}
+econData <- read_csv("Lec3Data-Ex2.csv")
+
+cols(
+  Country = col_character(),
+  SEDA.Current.level = col_double(),
+  SEDA.Recent.progress = col_double(),
+  Wealth.to.well.being.coefficient = col_double(),
+  Growth.to.well.being.coefficient = col_double(),
+  Percent.of.15plus.with.bank.account = col_double(),
+  EPI_regions = col_character(),
+  Region = col_character()
+)
+
+head (econData)
+
+p <- ggplot(
+  econData, aes(x = Percent.of.15plus.with.bank.account, y = SEDA.Current.level)) 
+p + geom_point() + 
+  ggtitle("SEDA score of people over 15 years old") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Percent of 15 plus with bank account", y = "SEDA Current level")
+```
+
+#2. Color all points blue.
+```{r}
+p + geom_point(color = "blue") +
+  ggtitle("SEDA score of people over 15 years old") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  labs(x = "Percent of 15 plus with bank account", y = "SEDA Current level")
+```
+
+#3. Color points according to the Region variable.
+```{r}
+(p3 <- p + geom_point(aes(color = Region))) +
+  ggtitle("SEDA score of people over 15 years old by region") +
+  theme(plot.title = element_text(hjust = -0.3)) +
+  labs(x = "Percent of 15 plus with bank account", y = "SEDA Current level")
+```
+
+#4. Overlay a fitted smoothing trend on top of the scatter plot. Try to change the span argument in geom_smooth to a low value and see what happens.
+```{r}
+p3 + geom_smooth() +
+  ggtitle("SEDA score of people over 15 years old by region") +
+  theme(plot.title = element_text(hjust = -0.3)) +
+  labs(x = "Percent of 15 plus with bank account", y = "SEDA Current level")
+p3 + geom_smooth(span = 0.09) + 
+  ggtitle("SEDA score of people over 15 years old by region") +
+  theme(plot.title = element_text(hjust = -0.3)) +
+  labs(x = "Percent of 15 plus with bank account", y = "SEDA Current level")
+```
+
+#5. Overlay a regression line on top of the scatter plot (Hint: use geom_smooth with an appropriate method argument.)
+```{r}
+p3 + geom_smooth(method = "lm") + 
+  ggtitle("SEDA score of people over 15 years old by region") +
+  theme(plot.title = element_text(hjust = -0.3)) +
+  labs(x = "Percent of 15 plus with bank account", y = "SEDA Current level")
+```

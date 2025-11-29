@@ -1,0 +1,56 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(conflicted)  
+conflict_prefer("filter", "dplyr")
+library(tidyverse)
+```
+
+#Load in the dataset movies.csv used in the lecture:
+```{r}
+library(tidyverse)
+url <- "https://raw.githubusercontent.com/Juanets/movie-stats/master/movies.csv"
+movies <- read_csv(url)
+print (movies)
+```
+
+#1 Find a subset of the movies produced after 2010. Save the subset in  ‘movies.sub’ variable.
+```{r}
+movies.sub <- movies[movies$year >= 2010, ]
+```
+
+#2 Keep columns ‘name’, ‘director’, ‘year’, ‘country’, ‘genre’, ‘budget’,  ‘gross’, ‘score’ in the ‘movies.sub’.
+```{r}
+movies.sub %>% select(name, director, year, country, genre, budget,  gross, score)
+```
+
+#3 Find the profit for each movie in ‘movies.sub’ as a fraction of its budget.
+```{r}
+movies.sub <- mutate(
+  movies.sub, 
+  profit = gross - budget,
+  frac_profit = profit/budget
+  )
+
+select(movies.sub, name, gross, budget, profit, frac_profit)
+
+print(movies.sub)
+```
+
+#4 Count the number of movies in ‘movies.sub’ produced by each genre,  and order them in the descending count order.
+```{r}
+counter <- movies.sub %>%
+  count(genre)
+
+gen_org <- counter %>%
+  arrange(desc(n)) # 'n' is the default name for the count column
+
+print(gen_org)
+```
+

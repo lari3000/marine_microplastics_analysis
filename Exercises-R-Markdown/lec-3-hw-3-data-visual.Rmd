@@ -1,0 +1,90 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(conflicted)  
+conflict_prefer("filter", "dplyr")
+library(tidyverse)
+```
+
+#a. Import data with readr
+```{r}
+dataff <- read_csv("Lec3Data-hw3.csv")
+head (dataff)
+```
+
+#Rename column Total CO2 emissions from fossil-fuels and cement production (thousand metric tons of C) to something shorter, e.g. ‘Total_CO2’ 
+```{r}
+names(dataff)[3] <- "Total_CO2"
+names(dataff)[7] <- "Cement_Gt"
+head(dataff)
+```
+
+#b. Summarize data  
+#Compute the total yearly CO2 emissions (column Total.CO2.emissions.from.fossil.fuels.and.cement.production..thousand.metric. tons.of.C.) summed over all countries (the world total CO2 emission) using dplyr or an alternative function. Use the dataset to plot the World’s yearly CO2 emission in Gt.
+```{r}
+emission_by_year <- dataff %>%
+  group_by(Year) %>%
+  summarise(Total_emission_by_year = sum(Total_CO2)) # Sum the total emission for each year
+print (emission_by_year)
+
+ggplot(emission_by_year) +
+  geom_line(aes(x = Year, y = Total_emission_by_year/1e6)) +
+  ggtitle("Total yearly CO2 emissions") + 
+  theme_bw () +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("Total CO2 emission in Gt")
+```
+
+#c. Line plots 
+#Find the top 10 countries with highest emission after year 2000 (including 2000). 
+```{r}
+top10 <- dataff %>%
+  filter(Year >= 2000) %>%
+  group_by(Country) %>%
+  summarise(highest_emission = sum(Total_CO2)) %>%
+  arrange(desc(highest_emission)) %>%
+  top_n(10) %>%
+  .[["Country"]]
+```
+
+#Plot the yearly total CO2 emissions of these top 10 countries with a different color for each country. Use billion tonnes (Gt) units, i.e. divide the total emissions by 10ˆ6.
+```{r}
+ggplot(
+  dataff %>%
+    filter(Country %in% top10),
+  aes(x = Year, y = Total_CO2/1e-6)) +
+  geom_line(aes(color = Country)) +
+  labs(title = "Top 10 countries with highest emission after year 2000", y = "Total CO2 Emission (Gt)") +
+  theme_bw() + #Change the angle of the label, the position of the label and the title, 0, 0.5, 1
+  theme(legend.title = element_text(hjust = 0.4))
+```
+
+#d. Stacked plots
+#Use geom_area() or an alternative function to generate a plot similar to the one you generated above but with emission levels stacked on top of each other (summing to the total for the ten countries) with areas colored by countries. 
+```{r}
+df <- dataff %>% filter(Country %in% top10)
+ord_countries <- df %>%
+  filter(Year == max(Year)) %>%
+  arrange(Total_CO2) %>% .[["Country"]]
+df <- df %>%
+  mutate(Country = factor(Country, levels = ord_countries))
+
+ggplot(
+  df,
+  aes(x = Year, y = Total_CO2/1e6)) +
+  geom_area(aes (fill = Country), position = 'stack') +
+  theme_bw () +
+  theme(plot.title = element_text(hjust = -1.3), legend.title = element_text(hjust = 0.4)) +
+  labs(
+    title = "Total CO2 Emissions by Country Over Time",
+    x = "Year",
+    y = "Total CO2 Emissions (million tonnes)",
+    fill = "Country"
+      )
+```

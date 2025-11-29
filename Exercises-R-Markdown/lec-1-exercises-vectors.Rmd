@@ -1,0 +1,31 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1 Generate and print a vector of 10 random numbers between  5 and 500.
+```{r}
+sample(x = 5:500, size = 10)
+```
+
+#2 Generate a random vector Z of 1000 letters (from “a” to “z”).  Hint: the variable letters is already defined in R.
+```{r}
+Z <- sample(LETTERS, size=1000, replace=TRUE)
+print(Z)
+```
+
+#3 Print a summary of Z in the form of a frequency table.
+```{r}
+E <- table(Z)
+print(E)
+```
+
+#4 Print the list of letters that appear an even number of  times in Z.
+```{r}
+E[lapply(E, "%%", 2) == 0]
+```

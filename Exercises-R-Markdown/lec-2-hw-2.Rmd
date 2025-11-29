@@ -1,0 +1,51 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(conflicted)  
+conflict_prefer("filter", "dplyr")
+library(tidyverse)
+```
+
+#a Import data  
+#Visit the following URL: https://raw.githubusercontent.com/cme195/cme195.github.io/master/assets/data/ share-of-people-who-say-they-are-happy.txt Observe the structure and format of the data. Then, use a function from the readr package to read the data in the URL into R. Then, find the country with the highest share of happy people in 2014.
+```{r}
+happyp <- read_delim("Lec2-DB-homework-2.txt", delim = ";")
+names(happyp)[4] <- "SHPeople"
+head(happyp)
+
+counter <- happyp %>%
+  count(SHPeople)
+happyp[which.max(happyp$SHPeople), ]
+```
+
+#b Export data - Filter observations from the data set on happiness that correspond to years after 2000. Export the subset of the data as a tab-delimited text file to a chosen location on your computer.
+```{r}
+write.table(happyp%>% filter(Year > 2000), "happiness_exp_DB.txt", sep = "/", row.names = FALSE)
+```
+
+#c dplyr functions - In this exercise we use the package, nycflights13, storing datasets on flights and airports in the city of New York in 2013. Install the package with install.packages("nycflights13") if you have not done so already, then load it with library(nycflights13). 
+#The dataset ‘flights’ is a tibble with 336,776 observations! To learn about the details about this dataset, type ?flights in your R console. 
+#Use dplyr functions (and the %>% operator) to compute, for each combination of departure airport,‘origin’, destination airport, ‘dest’, and ‘carrier’: the average ‘dep_delay’, the average ‘air_time’ and the average ratio ‘dep_delay’/‘air_time’ 
+#For each ‘carrier’ report the route (‘origin’-‘dest’) with the highest mean ratio of departure delay over air time. Now, you know which flights not to take with a given carrier. Note: Since, the dataset contains missing values, when computing the averages, remember to exclude the missing values (use ‘na.rm = TRUE’ in mean() function).
+
+library(nycflights13)
+
+# Average of ‘dep_delay’,‘air_time’ and the average ratio ‘dep_delay’/‘air_time’
+```{r}
+data <- flights %>%
+  group_by(dest, origin, carrier) %>%
+  summarise(
+    mean_dep_delay = mean(dep_delay, na.rm = TRUE),
+    mean_air_time = mean(air_time, na.rm = TRUE),
+    mean_ratio = mean(dep_delay/air_time, na.rm = TRUE)
+  )
+data %>%
+  group_by(carrier) %>%
+  top_n(1, mean_ratio)
+```

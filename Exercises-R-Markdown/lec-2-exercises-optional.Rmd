@@ -1,0 +1,191 @@
+---
+title: "exercises"
+output: html_document
+date: "2025-11-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1 Write a R program to create an array using four given columns, three given rows, and two given tables and display the content of the array.
+```{r}
+array1 = array(10:40, dim=c(3,4,2))
+
+print(array1)
+```
+
+#2 Write a R program to create a two-dimensional 5x3 array of sequence of even integers greater than 50.
+```{r}
+x <- array(seq(from = 50, length.out = 15, by = 2), c(5, 3))
+
+print("Content of the array, sequence of even integers greater than 50:")
+print(x)
+```
+
+#3 Write a R program to find row and column index of maximum and minimum value in a given matrix
+```{r}
+m1 = matrix(c(1:16), nrow = 4, byrow = TRUE)
+
+print("Original Matrix:")
+print(m1)
+
+result = which(m1 == max(m1), arr.ind=TRUE)
+print("Row and column of maximum value of matrix m1:")
+print(result)
+
+result = which(m1 == min(m1), arr.ind=TRUE)
+print("Row and column of minimum value of matrix m1:")
+print(result)
+```
+
+#4 Write a R program to concatenate two given matrices of same column but different rows.
+```{r}
+a = matrix(25:36, ncol=3, , byrow = TRUE)
+b = matrix(38:58, ncol=3, , byrow = TRUE)
+
+print("Matrix-1")
+print(a)
+
+print("Matrix-2")
+print(b)
+
+result = rbind(a, b)
+
+print("Matrices concatenated:")
+print(result)
+```
+
+#5 Write a R program to get the length of the first two vectors of a given list.
+```{r}
+listA = list(a1 = 11:20, a2 = "R Programming", a3 = "PHP")
+
+print("Original list:")
+print(listA)
+
+print("Length of the vector 'a1' and 'a2' of listA:")
+print(length(listA$a1))
+print(length(listA$a2))
+```
+
+#6 Write a R program to find all elements of a given list that are not in another given list.
+```{r}
+l1 = list("a", "b", "c")
+l2 = list("A", "B", "C", "a", "b", "c")
+
+print("Original lists:")
+print(l1)
+print(l2)
+
+print("All elements of l2 that are not in l1:")
+setdiff(l2, l1)
+```
+
+#7 Write a R program to create a list containing a vector, a matrix and a list and remove the second element.
+```{r}
+list_data <- list(c("Pink","Blue","White"), matrix(c(4,8,3,2,7,5), nrow = 2),
+                  list("C##", "HTML", "Ruby"))
+print("List:")
+print(list_data)
+
+print("Remove the second element of the list:")
+list_data[2] = NULL
+
+print("New list:")
+print(list_data)
+```
+
+#8 Write a R program to save the information of a data frame in a file and display the information of the file. 
+# Create a data frame named 'exam_data' with columns: name, score, attempts, and qualify
+```{r}
+exam_data = data.frame(
+  name = c('Marie', 'Dylan', 'Kathy', 'John', 'Emma', 'Michele', 'Matt', 'Laury', 'Keven', 'Josh'),
+  score = c(12.5, 9, 16.5, 12, 9, 20, 14.5, 13.5, 8, 19),
+  attempts = c(1, 3, 2, 3, 2, 3, 1, 1, 2, 1),
+  qualify = c('yes', 'no', 'yes', 'no', 'no', 'yes', 'yes', 'no', 'no', 'yes')
+)
+
+print("Original dataframe:")
+print(exam_data)
+
+save(exam_data, file = "data.rda")
+
+load("data.rda")
+
+file.info("data.rda")
+```
+
+#9 Write a R program to create a data frame using two given vectors and display the duplicated elements and unique rows of the said data frame. 
+```{r}
+x = c(10, 20, 10, 10, 40, 50, 20, 30)
+y = c(10, 30, 10, 20, 0, 50, 30, 30)
+
+print("Original data frame:")
+
+xy = data.frame(x, y)
+print(xy)
+
+print("Duplicate elements of the said data frame:")
+print(xy[duplicated(xy), ])
+
+print("Unique rows of the said data frame:")
+print(unique(xy))
+```
+
+#10 Write a R program to find elements which are present in two given data frames.
+```{r}
+x = c("a", "b", "c", "d", "e")
+y = c("d", "e", "f", "g")
+
+print("Original Dataframes")
+
+print(x)
+print(y)
+
+print("Elements which are present in both dataframes:")
+result = intersect(x, y)
+print(result)
+```
+
+#11 Write a R program to create an ordered factor from data consisting of the names of months. 
+```{r}
+month_v = c("March","April","January","November","January","September","October","September","November","August","February","January","November","November","February","May","August","February","July","December","August","August","September","November","September","February","April")
+
+print("Original vector:")
+print(month_v)
+
+f = factor(month_v)
+
+print("Ordered factors of vector month_v:")
+print(f)
+
+print(table(f))
+```
+
+#12 Write a R program to add 3 to each element in a given vector. Print the original and new vector.
+```{r}
+vec = c(1, 2, NULL, 3, 4, NULL)
+
+print("Original vector:")
+print(vec)
+
+new_vec = (vec + 3)[(!is.na(vec)) & vec > 0]
+
+print("New vector:")
+print(new_vec)
+```
+
+#13 Write a R program to create a vector and find the length and the dimension of the vector.
+```{r}
+vec = c(1, 3, 5, 7, 9)
+
+print("Original vector:")
+print(vec)
+
+print("Dimension of the vector:")
+print(dim(vec)) #returns NULL for a 1D vector
+
+print("Length of the vector:")
+print(length(vec))
+```
+
