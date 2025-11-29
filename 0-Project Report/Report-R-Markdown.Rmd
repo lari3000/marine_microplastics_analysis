@@ -22,6 +22,7 @@ library(plotly)
 library(maps)
 library(shiny)
 library(viridis)
+library(corrplot)
 
 datamm <- read_csv("marine_microplastics.csv")
 head(datamm)
@@ -234,7 +235,7 @@ anim_plot <- ggplot() +
 animated_plot <- anim_plot +
   transition_time(Year) + 
   ease_aes('linear')     
-animate(animated_plot, fps = 10, renderer = gifski_renderer())
+animate(animated_plot, fps = 6, renderer = gifski_renderer())
 ```
 
 #Interactive Plot - Conversion of a ggplot object to an interactive plotly object
@@ -243,17 +244,20 @@ interactive_plot <- ggplotly(scat_plot, tooltip = "text")
 print(interactive_plot)
 ```
 
-#Heatmap - Correlation matrix
+#Heatmap - Correlation Between Numeric Variables
 ```{r}
 df_cor <- datamar %>%
   select(mp_measurement, water_smp_depth_m, lat_dg, long_dg) %>%
-  na.omit() # Remova NAs para o cálculo funcionar
-
+  na.omit()
 correlation_matrix <- cor(df_cor)
 
 corrplot(correlation_matrix, method = "circle", type = "upper", order = "hclust",
-         title = "Heatmap de Correlação entre Variáveis Numéricas",
-         tl.col = "black", tl.srt = 45)
+         title = "Heatmap of Correlation Between Numeric Variables",
+         tl.col = "black", 
+         tl.srt = 20,
+         cex.main = 0.9
+         )
+
 ```
 
 #Linear Regression Model - Statistical model that attempts to predict microplastic concentration

@@ -1,0 +1,239 @@
+#2. Load and Inspect the Data (10 points):Load your dataset into R and perform an initial inspection.
+
+library(conflicted)
+conflict_prefer("filter", "dplyr")
+library(tidyverse)
+library(janitor)
+library(scales)
+library(gganimate)
+library(gifski)
+library(plotly)
+library(maps)
+library(shiny)
+library(viridis)
+library(corrplot)
+
+datamm <- read_csv("marine_microplastics.csv")
+head(datamm)
+
+print("Dataframe structure:")
+str(datamm)
+print("Dataframe dimensions - RowsxColumns:")
+dim(datamm)
+print("Data Types:")
+sapply(datamm, class)
+# Check for missing values in a data frame
+colSums(is.na(datamm))
+
+#3. Transform and Clean the Data (15 points): Prepare your data for analysis.
+#• Handle missing values, outliers, and duplicates.
+#• Create new variables or derived columns if needed.
+# Standardize categorical variables and encode them properly.
+#• Use dplyr, tidyr, or similar packages for efficient data manipulation.
+
+names(datamm)
+
+datamar <- datamm %>% 
+  clean_names() %>%
+  select(-objectid, -country, -state, -marine_setting, -ocean_bottom_depth_m, -mesh_size_mm, -sediment_sample_depth_m, -transect_no,  -sampling_point_on_beach, -volunteers_number, -collecting_time_min, -standardized_nurdle_amount, -short_reference, -long_reference, -doi, -keywords, -ncei_accession_no, -ncei_accession_no_link, -global_id) %>%
+  rename(
+    "lat_dg"            = latitude_degree,
+    "long_dg"           = longitude_degree,
+    "beach_loc"         = beach_location,
+    "water_smp_depth_m" = water_sample_depth_m,
+    "samp_method"       = sampling_method,
+    "mp_measurement"    = microplastics_measurement,
+    "ctr_class_range"   = concentration_class_range,
+    "ctr_class_text"    = concentration_class_text,
+    "date"              = date_mm_dd_yyyy,
+    "Unit"              = unit ) %>% 
+  mutate (
+    across(c(region, subregion, beach_loc), ~replace_na(., "Open Ocean"))) %>%
+  drop_na(ocean, water_smp_depth_m, mp_measurement) %>%
+  distinct() #removes the duplicates
+
+colnames(datamar)
+
+datamar$date <- mdy_hms(datamar$date)
+
+print(paste("Clean dataframe dimensions - Rows x Columns:", paste(dim(datamar), collapse = "x")))
+
+#4. Initial Data Visualization and Summary (15 points):Provide an initial understanding of your dataset through visual exploration.
+
+#Line plot - Compute and plot of the World Total Microplastic Particles in the Ocean by Year summed over all microplastics particles and its plot.
+
+#view(datamar)
+
+mp_per_year <- datamar %>%
+  mutate(year_tt = year(date)) %>% # Extract the year
+  group_by(year_tt) %>% 
+  # Sum the total plastic for each year
+  summarise(total_mp_by_year = sum(mp_measurement)) %>% 
+  arrange(desc(year_tt))  %>% 
+  mutate(Unit = first(datamar$Unit))
+print(mp_per_year)
+
+ggplot(mp_per_year) +
+  geom_line(aes(x = year_tt, y = total_mp_by_year), linewidth = 1, color = "blue3") +
+  ggtitle("World Total Microplastic Particles in the Ocean by Year") +   theme_bw () +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("Year") +
+  ylab(paste("Total Microplastic", first(datamar$Unit))) +
+  scale_x_continuous(breaks = pretty_breaks(n = 6))
+
+#Scatter Plot - Visualize the relationship between microplastic concentration at different depths in the ocean. Each point on the graph represents a single observation or data sample.
+
+datamar <- datamar %>%
+  mutate(depth_zone = cut(water_smp_depth_m,
+                          breaks = c(0, 700, 3000, Inf),
+                          labels = c("Surface (<1000m)", "Interm. Zone (1000-4000m)", "Deep Zone (>4000m)"),
+                          right = FALSE))
+scat_plot <- ggplot(datamar, aes(x = mp_measurement, y = water_smp_depth_m, color = depth_zone)) +
+  geom_point(alpha = 0.6, size = 2) +
+  labs(
+    title = "Microplastic Concentration by Depth and Zone",
+    x = paste("Microplastic", first(datamar$Unit)),
+    y = "Water Sample Depth (m)",
+    color = "Depth Zone"
+  ) +
+  theme_bw() +
+  scale_y_reverse() + # Inverte o eixo Y para profundidade
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5))
+
+#Regression trend line x Scatter plot
+scat_plot + geom_smooth(method = "lm", se = TRUE, color = "black", inherit.aes = FALSE, 
+                        aes(x = mp_measurement, y = water_smp_depth_m)) + 
+  labs(
+    title = "Microplastic Concentration vs Depth with Global Linear Trend",
+    x = paste("Microplastic", first(datamar$Unit)),
+    y = "Water Sample Depth (m)",
+    color = "Depth Zone"
+  ) +
+  theme_bw() +
+  scale_y_reverse() +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
+  coord_cartesian(ylim = c(0, 1000))
+
+#Vertical Bar Plot - Top 10 Most Polluted Oceans
+
+top_10_polluted_oceans <- datamar %>%
+  group_by(ocean) %>%
+  summarise(avg_pollution = mean(mp_measurement, na.rm = TRUE), .groups = 'drop') %>%
+  arrange(avg_pollution) %>% 
+  slice_head(n = 10) %>% 
+  mutate(ocean = factor(ocean, levels = rev(ocean))) 
+
+sc_poluicao_top10 <- ggplot(top_10_polluted_oceans, aes(x = ocean, y = avg_pollution, fill = ocean)) +
+  geom_col(color = "white") + 
+  geom_text(aes(label = round(avg_pollution, 1)), 
+            vjust = -0.5,
+            color = "black") +
+  labs(
+    title = "Top 10 Most Polluted Oceans",
+    x = "Ocean",
+    y = paste("Average Microplastic", first(datamar$Unit))
+  ) +
+  theme_bw() +
+  scale_fill_viridis_d(option = "D") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "none") +
+  coord_cartesian(ylim = c(0, 130))
+print(sc_poluicao_top10)
+
+#Horizontal Bar Plot - Average Pollution Level by Beach and Ocean
+datamar_summary <- datamar %>%
+  group_by(beach_loc, ocean) %>%
+  summarise(media_poluicao = mean(mp_measurement, na.rm = TRUE), .groups = 'drop')
+
+ggplot(datamar_summary, aes(x = beach_loc, y = media_poluicao, fill = ocean)) +
+  geom_col(color = "white") + 
+  labs(
+    title = "Average Pollution Level by Beach and Ocean",
+    x = "Beach Location",
+    y = paste("Average Microplastic", first(datamar$Unit)),
+    fill = "Ocean"
+  ) +
+  theme_bw() +
+  coord_flip() +
+  theme(plot.title = element_text(hjust = 0.4))
+
+#Box plot - Distribution of microplastic concentration by ocean
+
+bp <- ggplot(datamar, aes(x = ocean, y = mp_measurement)) +
+  geom_boxplot(
+    fill = "yellow2",
+    outlier.color = "brown4",      # Muda a cor dos outliers para azul
+    outlier.shape = 8,         # Muda a forma dos outliers para asteriscos
+    outlier.size = 3 ) +           # Aumenta o tamanho dos outliers 
+  geom_jitter(aes(color = ocean), width = 0.4, alpha = 4, height = 0.5) +
+  ggtitle("Microplastics by ocean") +
+  labs(y = "Microplastics measurement") +
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 15, hjust = 1), legend.position = "none")
+print(bp)
+
+#Worldmap Static Plot - Visual distribuiton of Microplastics around the World
+x <- map_data("world")
+ggplot()+ borders("world", fill = "grey70", colour = "black")+
+  geom_point(aes(x=datamar$long_dg, y=datamar$lat_dg), color="red", alpha=0.5)+
+  coord_fixed() +
+  theme (plot.title = element_text(hjust = 0.5)) +
+  labs(title = "Global distribution of microplastics in ten years",
+       y = "Longitute",
+       x = "Latitude")
+  
+#Atalho para o ShinyApp
+runApp("C:/Users/LARISSA/Desktop/MESTRADO/PROGRAMAÇÃO R") 
+
+# ANIMATED WORLD MAP PLOT
+df_anim <- datamar %>%
+  mutate(Year = year(date)) %>% 
+  drop_na(Year, mp_measurement, lat_dg, long_dg) 
+
+world_map <- map_data("world")
+
+anim_plot <- ggplot() +
+  geom_polygon(data = world_map, 
+               aes(x = long, y = lat, group = group), 
+               fill = "gray80", color = "white", linewidth = 0.2) +
+  geom_point(data = df_anim, 
+             aes(x = long_dg, y = lat_dg, color = mp_measurement), 
+             alpha = 0.7, size = 3) +
+  scale_color_viridis_c(option = "plasma") +
+  theme_minimal() +
+  labs(title = "Microplastic Concentration Over Time: Year {frame_time}", 
+       color = "Measurement MP",
+       x = "Longitude",
+       y = "Latitude") +
+  coord_quickmap(xlim = c(-180, 180), ylim = c(-90, 90))
+animated_plot <- anim_plot +
+  transition_time(Year) + 
+  ease_aes('linear')     
+animate(animated_plot, fps = 10, renderer = gifski_renderer())
+
+#Interactive Plot - Conversion of a ggplot object to an interactive plotly object
+
+interactive_plot <- ggplotly(scat_plot, tooltip = "text")
+print(interactive_plot)
+
+#Heatmap - Correlation Between Numeric Variables
+
+df_cor <- datamar %>%
+  select(mp_measurement, water_smp_depth_m, lat_dg, long_dg) %>%
+  na.omit()
+
+correlation_matrix <- cor(df_cor)
+
+corrplot(correlation_matrix, method = "circle", type = "upper", order = "hclust",
+         title = "Heatmap of Correlation Between Numeric Variables",
+         tl.col = "black", 
+         tl.srt = 20,
+         cex.main = 0.9
+         )
+
+#Linear Regression Model - Statistical model that attempts to predict microplastic concentration
+dm_model <- datamar %>%
+  select(mp_measurement, water_smp_depth_m, lat_dg, long_dg) %>%
+  na.omit() 
+
+model_plastic <- lm(mp_measurement ~ water_smp_depth_m + lat_dg + long_dg, data = dm_model)
+
+summary(model_plastic)
